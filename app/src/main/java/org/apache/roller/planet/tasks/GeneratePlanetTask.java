@@ -64,7 +64,7 @@ public class GeneratePlanetTask extends PlanetTask {
             log.info("Calling Velocity Texen to generate Planet files");
             log.info("   Control file       ["+mainPage+"]");
             log.info("   Template directory ["+templateDir+"]"); 
-            log.info("   Output directory   ["+outputDir+"]");
+            log.info("    Output directory   ["+outputDir+"]");
 
             // Fire up Velocity engine, point it at templates and init
             VelocityEngine engine = new VelocityEngine();
