@@ -36,6 +36,7 @@ limitations under the License.
         <servlet.version>4.0.1</servlet.version>
         <jsp-api.version>2.2</jsp-api.version>
         <java-activation.version>1.2.0</java-activation.version>
+        <jackson.version>2.21.1</jackson.version>
         <jstl.version>1.2</jstl.version>
         <angular.version>1.7.8</angular.version>
         <ant.version>1.10.17</ant.version>
@@ -373,6 +374,12 @@ limitations under the License.
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
             <version>${commons-lang3.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
