@@ -47,7 +47,7 @@ limitations under the License.
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <roller.version>6.1.6</roller.version>
-        <slf4j.version>1.7.37</slf4j.version>
+        <slf4j.version>1.7.38</slf4j.version>
     </properties>
 
     <modules>
