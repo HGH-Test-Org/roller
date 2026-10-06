@@ -249,6 +249,15 @@ public class RomeFeedFetcher implements FeedFetcher {
             throw new IllegalArgumentException("Feed URL scheme must be http or https");
         }
 
+        if (StringUtils.isNotBlank(uri.getUserInfo())) {
+            throw new IllegalArgumentException("Feed URL must not contain user info");
+        }
+
+        int port = uri.getPort();
+        if (port != -1 && port != 80 && port != 443) {
+            throw new IllegalArgumentException("Feed URL port is not allowed");
+        }
+
         String host = uri.getHost();
         if (StringUtils.isBlank(host) || "localhost".equalsIgnoreCase(host)) {
             throw new IllegalArgumentException("Feed URL host is not allowed");
@@ -256,11 +265,14 @@ public class RomeFeedFetcher implements FeedFetcher {
 
         InetAddress[] addresses = InetAddress.getAllByName(host);
         for (InetAddress address : addresses) {
+            String normalizedHostAddress = address.getHostAddress().toLowerCase();
+            boolean isIpv6UniqueLocal = normalizedHostAddress.startsWith("fc") || normalizedHostAddress.startsWith("fd");
             if (address.isAnyLocalAddress()
                     || address.isLoopbackAddress()
                     || address.isLinkLocalAddress()
                     || address.isSiteLocalAddress()
-                    || address.isMulticastAddress()) {
+                    || address.isMulticastAddress()
+                    || isIpv6UniqueLocal) {
                 throw new IllegalArgumentException("Feed URL resolves to a non-public address");
             }
         }
