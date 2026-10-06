@@ -28,6 +28,7 @@ import com.rometools.rome.io.SyndFeedInput;
 import com.rometools.rome.io.XmlReader;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -227,12 +228,56 @@ public class RomeFeedFetcher implements FeedFetcher {
     
     private SyndFeed fetchFeed(String url) throws IOException, InterruptedException, FeedException {
         
-        HttpRequest request = requestBuilder.copy().uri(URI.create(url)).build();
+        URI validatedUri = validateFeedUri(url);
+        HttpRequest request = requestBuilder.copy().uri(validatedUri).build();
         
         try(XmlReader reader = new XmlReader(client.send(request, ofInputStream()).body())) {
             return new SyndFeedInput().build(reader);
         }
        
+    }
+
+    private URI validateFeedUri(String url) throws IOException {
+        URI uri = URI.create(url);
+
+        if (!uri.isAbsolute() || uri.getScheme() == null) {
+            throw new IllegalArgumentException("Feed URL must be an absolute URI");
+        }
+
+        String scheme = uri.getScheme().toLowerCase();
+        if (!"http".equals(scheme) && !"https".equals(scheme)) {
+            throw new IllegalArgumentException("Feed URL scheme must be http or https");
+        }
+
+        if (StringUtils.isNotBlank(uri.getUserInfo())) {
+            throw new IllegalArgumentException("Feed URL must not contain user info");
+        }
+
+        int port = uri.getPort();
+        if (port != -1 && port != 80 && port != 443) {
+            throw new IllegalArgumentException("Feed URL port is not allowed");
+        }
+
+        String host = uri.getHost();
+        if (StringUtils.isBlank(host) || "localhost".equalsIgnoreCase(host)) {
+            throw new IllegalArgumentException("Feed URL host is not allowed");
+        }
+
+        InetAddress[] addresses = InetAddress.getAllByName(host);
+        for (InetAddress address : addresses) {
+            String normalizedHostAddress = address.getHostAddress().toLowerCase();
+            boolean isIpv6UniqueLocal = normalizedHostAddress.startsWith("fc") || normalizedHostAddress.startsWith("fd");
+            if (address.isAnyLocalAddress()
+                    || address.isLoopbackAddress()
+                    || address.isLinkLocalAddress()
+                    || address.isSiteLocalAddress()
+                    || address.isMulticastAddress()
+                    || isIpv6UniqueLocal) {
+                throw new IllegalArgumentException("Feed URL resolves to a non-public address");
+            }
+        }
+
+        return uri;
     }
     
 }
